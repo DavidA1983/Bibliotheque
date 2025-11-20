@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un nouvel album{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+
+    {# --- Panneau BD avec titre --- #}
+    <div class="text-center mb-4 position-relative mx-auto" style="max-width: 900px;">
+        <img src="{{ asset('images/3.png') }}" alt="Panneau"
+             class="img-fluid rounded shadow" style="width: 100%;">
+
+        <h1 class="fw-bold text-white position-absolute" 
+            style="top: 180px; left: 50%; transform: translateX(-50%);">
+            Nouvel album
+        </h1>
+
+        {# --- Formulaire flottant --- #}
+        <div class="position-absolute top-50 start-50 translate-middle px-4 py-3 mt-2" style="width:auto; max-width:400px;">
+
+            {{ form_start(form) }}
+
+            {# --- Nom de l'album --- #}
+            <div class="row align-items-center mb-0">
+                {{ form_label(form.titre, null, {'label_attr': {'class': 'col-sm-4 col-form-label text-end'}}) }}
+                <div class="col-sm-8">
+                    {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.titre) }}
+                </div>
+            </div>
+
+            {# --- Numéro de l'album --- #}
+            <div class="row align-items-center mb-0">
+                {{ form_label(form.numero, null, {'label_attr': {'class': 'col-sm-4 col-form-label text-end'}}) }}
+                <div class="col-sm-8">
+                    {{ form_widget(form.numero, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.numero) }}
+                </div>
+            </div>
+
+            {# --- Série --- #}
+            <div class="row align-items-center mb-0">
+                {{ form_label(form.serie, null, {'label_attr': {'class': 'col-sm-4 col-form-label text-end'}}) }}
+                <div class="col-sm-8">
+                    {{ form_widget(form.serie, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.serie) }}
+                </div>
+            </div>
+
+            {# --- Image de l'album avec miniature --- #}
+           <div class="row align-items-center mb-0">
+    {{ form_label(form.couverture, null, {'label_attr': {'class': 'col-sm-4 col-form-label text-end'}}) }}
+    <div class="col-sm-8">
+        {{ form_widget(form.couverture, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.couverture) }}
+    </div>
+</div>
+
+            {# --- Boutons --- #}
+            <div class="d-flex justify-content-between mt-3 flex-wrap gap-2">
+                <button type="submit" class="bd-bubble">Créer</button>
+                <a href="{{ path('app_album_index') }}" class="bd-bubble">Retour</a>
+            </div>
+
+            {{ form_end(form) }}
+
+        </div>
+    </div>
+</div>
+
+{# --- Styles BD pour les boutons --- #}
+<style>
+.bd-bubble {
+    display: inline-block;
+    padding: 10px 20px;
+    max-width: 150px;
+    width: 130px;
+    background: #fff8e7;
+    border: 2px solid #e0cda9;
+    border-radius: 10px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #333;
+    text-align: center;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.bd-bubble:hover {
+    transform: scale(1.05);
+    box-shadow: 5px 5px 0 rgba(0,0,0,0.4);
+}
+
+#fileName {
+    font-style: italic;
+    color: #555;
+}
+</style>
+
+{# --- Script pour afficher le nom et la miniature --- #}
+<script>
+const fileInput = document.getElementById('album_image_input');
+const fileName = document.getElementById('fileName');
+const preview = document.getElementById('previewImage');
+
+fileInput.addEventListener('change', function() {
+    if(fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        fileName.textContent = `Fichier sélectionné : ${file.name}`;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        fileName.textContent = 'Aucun fichier choisi';
+        preview.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

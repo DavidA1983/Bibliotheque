@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Album{% endblock %}
+
+{% block body %}
+<main class="container my-5">
+    {# --- En-tête --- #}
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-primary">{{ album.titre }}</h1>
+        <p class="text-muted">Fiche détaillée sur panneau</p>
+    </div>
+
+    {# --- Fond panneau --- #}
+    <div class="position-relative mx-auto" style="max-width: 900px;">
+        <img src="{{ asset('images/panneau.png') }}" alt="Panneau"
+             class="img-fluid rounded shadow" style="width: 100%;">
+
+        {# --- Overlay pour contenu --- #}
+        <div class="position-absolute top-0 start-0 w-100 h-100 p-4 d-flex flex-column flex-md-row align-items-center justify-content-center"
+     style="border-radius: 10px; transform: translateY(-20px);">
+
+
+            {# --- Colonne couverture --- #}
+            {% if album.couverture %}
+            <div class="me-md-4 mb-3 mb-md-0 text-center">
+                <img src="{{ asset('uploads/' ~ album.couverture) }}" alt="Couverture"
+                     class="img-fluid rounded shadow border border-dark cover-zoom" style="max-height: 300px;">
+            </div>
+            {% endif %}
+
+            {# --- Colonne infos --- #}
+            <div class="text-white d-flex flex-column gap-2">
+
+                <div class="p-2 rounded" style="background-color: rgba(255,255,255,0.3); color: #fd79a8; font-weight: bold;">
+                    <strong>Titre :</strong> {{ album.titre }}
+                </div>
+                <div class="p-2 rounded" style="background-color: rgba(255,255,255,0.3); color: #0984e3; font-weight: bold;">
+                    <strong>Numéro :</strong> {{ album.numero }}
+                </div>
+
+                <div class="p-2 rounded" style="background-color: rgba(255,255,255,0.3); color: #6c5ce7; font-weight: bold;">
+                    <strong>Série :</strong> {{ album.serie.nom }}
+                </div>
+
+                {# --- Boutons --- #}
+                <div class="mt-3 d-flex gap-2 flex-wrap">
+                    <a href="{{ path('app_album_index') }}" class="btn btn-light">
+                        Retour
+                    </a>
+                    <a href="{{ path('app_album_edit', {'id': album.id}) }}" class="btn btn-light">
+                        Modifier
+                    </a>
+                </div>
+                <p>
+    Statut : 
+    {% if album.lu %}
+        ✅ Lu
+    {% else %}
+        ❌ Non lu
+    {% endif %}
+</p>
+
+<form method="post" action="{{ path('app_album_toggle_lu', {'id': album.id}) }}">
+    <input type="hidden" name="_token" value="{{ csrf_token('toggle_lu' ~ album.id) }}">
+    <button class="btn btn-sm btn-primary">
+        {% if album.lu %}Marquer comme non lu{% else %}Marquer comme lu{% endif %}
+    </button>
+</form>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+{# --- Zoom sur la couverture --- #}
+<style>
+.cover-zoom {
+    transition: transform 0.3s ease;
+}
+.cover-zoom:hover {
+    transform: scale(2);
+}
+</style>
+{% endblock %}

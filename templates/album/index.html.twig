@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Albums{% endblock %}
+
+{% block body %}
+<div class="container-fluid mt-4 px-0">
+    <div class="titre-serie">
+        <img src="{{ asset('images/bulle2.png') }}" alt="Les séries" class="titre-image">
+    </div>
+
+    <div class="d-flex flex-column align-items-start ms-3" style="width: 15%;">
+        <a href="{{ path('app_serie_index') }}" class="bd-bubble mb-3 text-center w-100">
+            Série
+        </a>
+
+        <a href="{{ path('app_album_new') }}" class="bd-bubble text-center mb-5 w-100">
+            Ajouter un album
+        </a>
+    </div>
+</div>
+    <div class="row">
+        {% for album in albums %}
+            <div class="col-md-3 mb-4">
+                <div class="card h-100">
+                    {% if album.couverture %}
+                        <img src="{{ asset('uploads/' ~ album.couverture) }}" class="card-img-top" alt="{{ album.titre }}">
+                    {% else %}
+                        <img src="https://via.placeholder.com/200x300?text=Pas+d%27image" class="card-img-top" alt="Pas d'image">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ album.titre }}</h5>
+                        <p class="card-text">N° {{ album.numero }}</p>
+                        <p class="card-text"><small>Série : {{ album.serie.nom }}</small></p>
+                        <p>
+    Statut : 
+    {% if album.lu %}
+        ✅ Lu
+    {% else %}
+        ❌ Non lu
+    {% endif %}
+</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <a href="{{ path('app_album_show', {'id': album.id}) }}" class="btn btn-sm btn-info">Voir</a>
+                        <a href="{{ path('app_album_edit', {'id': album.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p>Aucun album pour le moment.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

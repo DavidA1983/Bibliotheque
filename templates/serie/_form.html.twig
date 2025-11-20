@@ -1,0 +1,21 @@
+{{ form_start(form, {'attr': {'id': 'serie_form'}}) }}
+
+{# --- Nom de la série --- #}
+<div class="mb-3 row align-items-center">
+    {{ form_label(form.nom, null, {'label_attr': {'class': 'col-sm-4 col-form-label text-end'}}) }}
+    <div class="col-sm-8">
+        {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.nom) }}
+    </div>
+</div>
+
+{# --- Description --- #}
+<div class="mb-3 row align-items-center">
+    {{ form_label(form.description, null, {'label_attr': {'class': 'col-sm-4 col-form-label text-end'}}) }}
+    <div class="col-sm-8">
+        {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.description) }}
+    </div>
+</div>
+
+{{ form_end(form, {'render_rest': false}) }}

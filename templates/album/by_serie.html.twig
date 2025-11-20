@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Albums de {{ serie.nom }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Albums de {{ serie.nom }}</h1>
+    <div class="row">
+        {% for album in albums %}
+            <div class="col-md-3 mb-4">
+                <div class="card h-100">
+                    {% if album.couverture %}
+                        <img src="{{ asset('uploads/' ~ album.couverture) }}" class="card-img-top" alt="{{ album.titre }}">
+                    {% else %}
+                        <img src="https://via.placeholder.com/200x300?text=Pas+d%27image" class="card-img-top" alt="Pas d'image">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ album.titre }}</h5>
+                        <p class="card-text">N° {{ album.numero }} - {{ album.annee }}</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <a href="{{ path('app_album_show', {'id': album.id}) }}" class="btn btn-sm btn-info">Voir</a>
+                        <a href="{{ path('app_album_edit', {'id': album.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p>Aucun album pour cette série.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,164 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ serie.nom }}{% endblock %}
+
+{% block body %}
+<main class="container my-5">
+
+    {# --- En-tête --- #}
+
+
+    {# --- Fond panneau --- #}
+    <div class="position-relative mx-auto" style="max-width: 900px;">
+        <img src="{{ asset('images/3.png') }}" alt="Panneau"
+             class="img-fluid rounded shadow" style="width: 100%;">
+
+        {# --- Overlay panneau --- #}
+        <div class="position-absolute top-0 start-0 w-100 h-100 p-4 d-flex flex-column align-items-center justify-content-start"
+             style="border-radius: 10px; transform: translateY(340px);">
+
+            {# --- IMAGE --- #}
+            <div class="mb-4 text-center">
+                {% if serie.image %}
+                    <img src="{{ asset('uploads/' ~ serie.image) }}"
+                         alt="{{ serie.nom }}"
+                         class="img-fluid rounded shadow border border-dark cover-zoom"
+                         style="max-height: 300px;">
+                {% else %}
+                    <img src="https://via.placeholder.com/300x400?text=Pas+d%27image"
+                         class="img-fluid rounded shadow border border-dark"
+                         style="max-height: 300px;"
+                         alt="Pas d'image">
+                {% endif %}
+            </div>
+
+            {# --- INFOS --- #}
+            <div class="w-50 d-flex flex-column gap-3">
+
+                <div class="p-2 rounded text-center"
+                     style="color: #030303ff; font-weight: bold;">
+                    <strong>Nom :</strong> {{ serie.nom }}
+                </div>
+
+                <div class="p-2 rounded text-center"
+                     style="color: #050505ff; font-weight: bold;">
+                    <strong>Description :</strong><br>
+                    <span class="text-black">{{ serie.description ?: 'Aucune description' }}</span>
+                </div>
+            </div>
+
+            {# --- BOUTONS --- #}
+            <div class="mt-4 d-flex flex-column align-items-center gap-2 w-50">
+
+
+                <a href="{{ path('app_album_new', {'serie_id': serie.id}) }}" class="btn btn-primary w-75">
+                    Ajouter un album
+                </a>
+
+                <a href="{{ path('app_serie_edit', {'id': serie.id}) }}" class="btn btn-warning w-75">
+                    Modifier
+                </a>
+
+
+                <div class="w-75">
+                    {{ include('serie/_delete_form.html.twig', {
+                        'button_label': 'Supprimer',
+                        'button_class': 'btn btn-danger w-100'
+                    }) }}
+                </div>
+                                <a href="{{ path('app_serie_index') }}" class="btn btn-light w-75">
+                    ← Retour
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+</main>
+
+{# --- Albums de la série --- #}
+<div class="container mt-5">
+
+    {% if serie.albums|length > 0 %}
+       <h3 class="mb-3 text-white text-center bubble-title-small">
+    Albums de la série
+</h3>
+        <div class="row row-cols-1 row-cols-md-3 g-4 mt-2">
+            {% for album in serie.albums %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+
+                        {% if album.couverture %}
+                            <img src="{{ asset('uploads/' ~ album.couverture) }}"
+                                 class="card-img-top" alt="{{ album.titre }}">
+                        {% else %}
+                            <img src="https://via.placeholder.com/200x300?text=Pas+d%27image"
+                                 class="card-img-top" alt="Pas d'image">
+                        {% endif %}
+
+                        <div class="card-body">
+                            <h5 class="card-title text-center">{{ album.titre }}</h5>
+                            <p class="card-text text-center"><small class="text-muted">N° {{ album.numero }}</small></p>
+                        </div>
+
+                        <div class="card-footer d-flex gap-1 justify-content-center">
+                            <a href="{{ path('app_album_show', {'id': album.id}) }}"
+                               class="btn btn-sm btn-info">Voir</a>
+
+                            <a href="{{ path('app_album_edit', {'id': album.id}) }}"
+                               class="btn btn-sm btn-warning">Modifier</a>
+
+                            <form method="post"
+                                  action="{{ path('app_album_delete', {'id': album.id}) }}"
+                                  onsubmit="return confirm('Voulez-vous vraiment supprimer cet album ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ album.id) }}">
+                                <button class="btn btn-sm btn-danger">Supprimer</button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    {% else %}
+        <p class="mt-4 text-muted text-center">Aucun album enregistré pour cette série.</p>
+    {% endif %}
+</div>
+
+
+<style>
+
+.bubble-title {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 15px 30px;
+    border-radius: 25px;
+    font-size: 2.5rem;
+    text-shadow: 0 0 5px rgba(0,0,0,0.7);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    backdrop-filter: blur(3px);
+}
+
+.bubble-title-small {
+        display: block;
+    width: fit-content;
+    margin: 0 auto;
+    background: rgba(0, 123, 255, 0.15);
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-size: 1.75rem;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    backdrop-filter: blur(3px);
+}
+
+.cover-zoom {
+    transition: transform 0.3s ease;
+}
+.cover-zoom:hover {
+    transform: scale(2);
+}
+</style>
+
+{% endblock %}

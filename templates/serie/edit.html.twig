@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier une série{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+
+    <h1 class="text-center mb-4">Modifier la série</h1>
+
+    {{ form_start(form) }}
+
+    <div class="mb-4">
+        {# Nom #}
+        <div class="mb-3 row align-items-center">
+            {{ form_label(form.nom, null, {'label_attr': {'class': 'col-sm-2 col-form-label'}}) }}
+            <div class="col-sm-10">
+                {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.nom) }}
+            </div>
+        </div>
+
+        {# Description #}
+        <div class="mb-3 row align-items-center">
+            {{ form_label(form.description, null, {'label_attr': {'class': 'col-sm-2 col-form-label'}}) }}
+            <div class="col-sm-10">
+                {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.description) }}
+            </div>
+        </div>
+
+        {# Image actuelle #}
+        {% if serie.image %}
+            <div class="mb-3 row align-items-center">
+                <label class="col-sm-2 col-form-label">Image actuelle</label>
+                <div class="col-sm-10">
+                    <img src="/uploads/{{ serie.image }}" alt="Image actuelle" class="img-fluid rounded border" width="220">
+                </div>
+            </div>
+        {% endif %}
+
+        {# Nouvelle image #}
+        <div class="mb-3 row align-items-center">
+            {{ form_label(form.image, null, {'label_attr': {'class': 'col-sm-2 col-form-label'}}) }}
+            <div class="col-sm-10">
+                {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.image) }}
+            </div>
+        </div>
+    </div>
+
+    {# Boutons principaux #}
+    <div class="text-center mt-4">
+        <button type="submit" class="btn btn-primary px-4 py-2 mb-2">
+            Mettre à jour
+        </button>
+
+        <div>
+            <a href="{{ path('app_serie_index') }}" class="btn btn-secondary px-4">
+                Retour
+            </a>
+        </div>
+    </div>
+
+    {{ form_end(form) }}
+
+    {# Bouton supprimer (formulaire séparé) #}
+    <div class="text-center mt-4">
+        <form 
+            method="post"
+            action="{{ path('app_serie_delete', {'id': serie.id}) }}"
+            onsubmit="return confirm('Supprimer cette série ?');"
+            class="d-inline-block"
+        >
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ serie.id) }}">
+            <button class="btn btn-danger px-4">
+                Supprimer
+            </button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

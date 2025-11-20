@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer une nouvelle série{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+
+    <div class="text-center mb-4 position-relative mx-auto" style="max-width: 900px;">
+        <img src="{{ asset('images/panneau.png') }}" alt="Panneau"
+             class="img-fluid rounded shadow" style="width: 100%;">
+
+        <h1 class="fw-bold text-white position-absolute" 
+            style="top: 170px; left: 50%; transform: translateX(-50%);">
+            Nouvelle série
+        </h1>
+
+        <div class="position-absolute top-50 start-50 translate-middle px-4 py-3" style="width:auto; max-width:400px;">
+
+            {{ form_start(form, { 'attr': { 'enctype': 'multipart/form-data' }}) }}
+
+            {# Nom #}
+            {{ form_row(form.nom) }}
+
+            {# Description #}
+            {{ form_row(form.description) }}
+
+            {# Champ "Parcourir" pour l'image #}
+            {{ form_row(form.image) }}
+
+            {# Boutons #}
+            <div class="d-flex justify-content-center mt-3 flex-wrap gap-2">
+                <button type="submit" class="bd-bubble">Créer</button>
+                <a href="{{ path('app_serie_index') }}" class="bd-bubble">Retour</a>
+            </div>
+
+            {{ form_end(form) }}
+
+        </div>
+    </div>
+</div>
+
+<style>
+.bd-bubble {
+    display: inline-block;
+    padding: 10px 20px;
+    max-width: 150px;
+    width: 130px;
+    background: #fff8e7;
+    border: 2px solid #e0cda9;
+    border-radius: 10px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #333;
+    text-align: center;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.bd-bubble:hover {
+    transform: scale(1.05);
+    box-shadow: 5px 5px 0 rgba(0,0,0,0.4);
+}
+</style>
+{% endblock %}
