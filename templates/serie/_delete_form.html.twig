@@ -1,8 +1,7 @@
-<form method="post" action="{{ path('app_serie_delete', {'id': serie.id}) }}" onsubmit="return confirm('Voulez-vous vraiment supprimer cet élément ?');">
-    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ serie.id) }}">
-
-    <button 
-        class="{{ button_class is defined ? button_class : 'btn btn-danger' }}">
-        {{ button_label is defined ? button_label : 'Supprimer' }}
+<form method="post" action="{{ path('app_serie_delete', {'id': serie.id}) }}"
+      onsubmit="return confirm('Voulez-vous vraiment supprimer cet élément ?');"
+      class="d-flex justify-content-center w-100 m-0 p-0">
+    <button type="submit" class="{{ button_class|default('bd-bubble w-75 text-center') }}">
+        {{ button_label|default('Supprimer') }}
     </button>
 </form>

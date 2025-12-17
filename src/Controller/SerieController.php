@@ -13,7 +13,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
-#[Route('/serie')]
+#[Route('/')]
 class SerieController extends AbstractController
 {
     #[Route('', name: 'app_serie_index', methods: ['GET'])]

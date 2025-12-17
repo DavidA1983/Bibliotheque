@@ -27,11 +27,15 @@ class AlbumController extends AbstractController
     }
 
     #[Route('/new', name: 'app_album_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger, SerieRepository $serieRepository): Response
-    {
+    public function new(
+        Request $request,
+        EntityManagerInterface $em,
+        SluggerInterface $slugger,
+        SerieRepository $serieRepository
+    ): Response {
         $album = new Album();
 
-        // Si on a un paramètre serie_id, on lie automatiquement la série
+        // Lier automatiquement la série si serie_id présent
         $serieId = $request->query->get('serie_id');
         if ($serieId) {
             $serie = $serieRepository->find($serieId);
@@ -40,10 +44,16 @@ class AlbumController extends AbstractController
             }
         }
 
-        $form = $this->createForm(AlbumType::class, $album);
+        // 👉 Le formulaire en mode NEW → is_edit = false
+        $form = $this->createForm(AlbumType::class, $album, [
+            'is_edit' => false,
+        ]);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            // Gestion image couverture
             $imageFile = $form->get('couverture')->getData();
             if ($imageFile) {
                 $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
@@ -52,16 +62,18 @@ class AlbumController extends AbstractController
 
                 try {
                     $imageFile->move($this->getParameter('uploads_directory'), $newFilename);
-                } catch (FileException $e) {
-                    // Gérer l’erreur
-                }
+                } catch (FileException $e) {}
 
                 $album->setCouverture($newFilename);
+                $album->setCouvertureUpdatedAt(new \DateTime());
             }
 
             $em->persist($album);
             $em->flush();
-            return $this->redirectToRoute('app_album_index');
+
+            return $this->redirectToRoute('app_serie_show', [
+    'id' => $album->getSerie()->getId(),
+]);
         }
 
         return $this->render('album/new.html.twig', [
@@ -78,39 +90,55 @@ class AlbumController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_album_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Album $album, EntityManagerInterface $em, SluggerInterface $slugger): Response
-    {
-        $form = $this->createForm(AlbumType::class, $album);
-        $form->handleRequest($request);
+   #[Route('/{id}/edit', name: 'app_album_edit', methods: ['GET', 'POST'])]
+public function edit(
+    Request $request,
+    Album $album,
+    EntityManagerInterface $em,
+    SluggerInterface $slugger
+): Response {
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            // Gestion du téléchargement d'image
-            $imageFile = $form->get('couverture')->getData();
-            if ($imageFile) {
-                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
+    // Formulaire en mode EDIT → is_edit = true
+    $form = $this->createForm(AlbumType::class, $album, [
+        'is_edit' => true,
+    ]);
 
-                try {
-                    $imageFile->move($this->getParameter('uploads_directory'), $newFilename);
-                } catch (FileException $e) {
-                    // Gérer l'erreur si nécessaire
-                }
+    $form->handleRequest($request);
 
-                $album->setCouverture($newFilename);
+    if ($form->isSubmitted() && $form->isValid()) {
+
+        // Gestion upload image
+        $imageFile = $form->get('couverture')->getData();
+        if ($imageFile) {
+            $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeFilename = $slugger->slug($originalFilename);
+            // On génère toujours un nouveau nom de fichier
+            $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
+
+            try {
+                $imageFile->move($this->getParameter('uploads_directory'), $newFilename);
+            } catch (FileException $e) {
+                $this->addFlash('error', 'Erreur lors de l\'upload de l\'image.');
             }
 
-            $em->flush();
-
-            return $this->redirectToRoute('app_album_index');
+            $album->setCouverture($newFilename);
+            $album->setCouvertureUpdatedAt(new \DateTime()); // Toujours mettre à jour la date
         }
 
-        return $this->render('album/edit.html.twig', [
-            'album' => $album,
-            'form' => $form,
-        ]);
+        $em->flush();
+
+        $this->addFlash('success', 'Album mis à jour avec succès !');
+
+        return $this->redirectToRoute('app_serie_show', [
+    'id' => $album->getSerie()->getId(),
+]);
     }
+
+    return $this->render('album/edit.html.twig', [
+        'album' => $album,
+        'form' => $form,
+    ]);
+}
 
 
     #[Route('/{id}', name: 'app_album_delete', methods: ['POST'])]
@@ -124,25 +152,41 @@ class AlbumController extends AbstractController
         return $this->redirectToRoute('app_album_index');
     }
 
-    // ---- Liste des albums d’une série ----
     #[Route('/serie/{id}', name: 'app_album_by_serie', methods: ['GET'])]
     public function bySerie(Serie $serie, AlbumRepository $albumRepository): Response
     {
-        $albums = $albumRepository->findBy(['serie' => $serie], ['numero' => 'ASC']);
+        $albums = $albumRepository->findBy(
+            ['serie' => $serie],
+            ['numero' => 'ASC']
+        );
+
         return $this->render('album/by_serie.html.twig', [
             'serie' => $serie,
             'albums' => $albums,
         ]);
     }
 
-    #[Route('/{id}/toggle-lu', name: 'app_album_toggle_lu', methods: ['POST'])]
-    public function toggleLu(Album $album, Request $request, EntityManagerInterface $em): Response
-    {
-        if ($this->isCsrfTokenValid('toggle_lu' . $album->getId(), $request->request->get('_token'))) {
-            $album->setLu(!$album->isLu());
-            $em->flush();
-        }
-
-        return $this->redirectToRoute('app_album_show', ['id' => $album->getId()]);
+#[Route('/{id}/toggle-lu', name: 'app_album_toggle_lu', methods: ['POST'])]
+public function toggleLu(Request $request, AlbumRepository $albumRepository, EntityManagerInterface $em, int $id): Response
+{
+    $album = $albumRepository->find($id);
+    if (!$album) {
+        throw $this->createNotFoundException('Album non trouvé');
     }
+
+    if ($this->isCsrfTokenValid('toggle_lu' . $album->getId(), $request->request->get('_token'))) {
+        $album->setLu(!$album->isLu());
+        $em->flush();
+    }
+
+    // Reste sur la page d’édition si nécessaire
+    $redirect = $request->request->get('redirect');
+    if ($redirect === 'edit') {
+        return $this->redirectToRoute('app_album_edit', ['id' => $album->getId()]);
+    }
+
+    return $this->redirectToRoute('app_album_show', ['id' => $album->getId()]);
 }
+
+}
+

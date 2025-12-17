@@ -3,118 +3,117 @@
 {% block title %}Modifier l'album{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
+<main class="container my-5">
 
-    <div class="text-center mb-4 position-relative mx-auto" style="max-width: 900px;">
-        <img src="{{ asset('images/3.png') }}" alt="Panneau"
-             class="img-fluid rounded shadow" style="width: 100%; max-width: 700px;">
+    <div class="comic-card mx-auto p-4 shadow-lg rounded-4">
 
-        <h1 class="fw-bold text-white position-absolute" 
-            style="top: 25%; left: 50%; transform: translateX(-50%);">
-            Modifier l'album
-        </h1>
+        <h1 class="comic-title text-center mb-4">Modifier l'album</h1>
 
-        <div class="form-position px-4 py-3">
+        {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
 
-            {{ form_start(form, { 'attr': { 'enctype': 'multipart/form-data' } }) }}
-
-            {# --- Nom de l'album --- #}
-            <div class="row align-items-center mb-2">
-                {{ form_label(form.titre, null, {'label_attr': {'class': 'col-sm-4 col-form-label text-end'}}) }}
-                <div class="col-sm-8">
-                    {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
-                    {{ form_errors(form.titre) }}
-                </div>
-            </div>
-
-            {# --- Numéro --- #}
-            <div class="row align-items-center mb-2">
-                {{ form_label(form.numero, null, {'label_attr': {'class': 'col-sm-4 col-form-label text-end'}}) }}
-                <div class="col-sm-8">
-                    {{ form_widget(form.numero, {'attr': {'class': 'form-control'}}) }}
-                    {{ form_errors(form.numero) }}
-                </div>
-            </div>
-
-            {# --- Série --- #}
-            <div class="row align-items-center mb-2">
-                {{ form_label(form.serie, null, {'label_attr': {'class': 'col-sm-4 col-form-label text-end'}}) }}
-                <div class="col-sm-8">
-                    {{ form_widget(form.serie, {'attr': {'class': 'form-control'}}) }}
-                    {{ form_errors(form.serie) }}
-                </div>
-            </div>
-
-            {# --- Image --- #}
-           <div class="row align-items-center mb-0">
-    {{ form_label(form.couverture, null, {'label_attr': {'class': 'col-sm-4 col-form-label text-end'}}) }}
-    <div class="col-sm-8">
-        {{ form_widget(form.couverture, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.couverture) }}
-    </div>
-</div>
-            {# --- Boutons --- #}
-            <div class="d-flex justify-content-center gap-2 mt-4">
-                <button class="bd-bubble" type="submit">Mettre à jour</button>
-                <a href="{{ path('app_album_index') }}" class="bd-bubble">Retour</a>
-            </div>
-
-            {{ form_end(form) }}
-
+        {# --- Titre --- #}
+        <div class="comic-bubble mb-3">
+            {{ form_label(form.titre, null, {'label_attr': {'class': 'fw-bold'}}) }}
+            {{ form_widget(form.titre, {'attr': {'class': 'form-control mt-2'}}) }}
+            {{ form_errors(form.titre) }}
         </div>
+
+        {# --- Numéro --- #}
+        <div class="comic-bubble mb-3">
+            {{ form_label(form.numero, null, {'label_attr': {'class': 'fw-bold'}}) }}
+            {{ form_widget(form.numero, {'attr': {'class': 'form-control mt-2'}}) }}
+            {{ form_errors(form.numero) }}
+        </div>
+
+        {# --- Série --- #}
+        <div class="comic-bubble mb-3">
+            {{ form_label(form.serie, null, {'label_attr': {'class': 'fw-bold'}}) }}
+            {{ form_widget(form.serie, {'attr': {'class': 'form-control mt-2'}}) }}
+            {{ form_errors(form.serie) }}
+        </div>
+
+        {# --- Couverture avec prévisualisation --- #}
+        <div class="comic-bubble mb-3">
+            {{ form_label(form.couverture, null, {'label_attr': {'class': 'fw-bold'}}) }}
+            {{ form_widget(form.couverture, {'attr': {'class': 'form-control mt-2', 'id': 'album_image_input', 'accept': 'image/*'}}) }}
+            {{ form_errors(form.couverture) }}
+
+            {% if album.couverture %}
+                <img id="previewImage"
+                     src="{{ asset('uploads/' ~ album.couverture) }}?v={{ album.couvertureUpdatedAt ? album.couvertureUpdatedAt|date('YmdHis') : '0' }}"
+                     alt="Miniature couverture"
+                     class="img-fluid mt-2"
+                     style="max-height: 150px;">
+            {% else %}
+                <img id="previewImage" src="#" alt="Miniature couverture"
+                     class="img-fluid mt-2" style="display:none; max-height: 150px;">
+            {% endif %}
+
+            <div id="fileName" class="mt-1" style="font-style: italic; color:#555;"></div>
+        </div>
+
+        <div class="d-flex gap-2 flex-wrap mt-4">
+            <button type="submit" class="comic-action-btn">Enregistrer les modifications</button>
+        </div>
+
+        {{ form_end(form) }}
+
+        <br>
+
+        {# --- Lu / Non lu --- #}
+        <div class="comic-bubble mb-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+            <div>
+                <strong>Statut :</strong>
+                {% if album.lu %}
+                    ✔️ <span class="text-success fw-bold">Lu</span>
+                {% else %}
+                    ❌ <span class="text-danger fw-bold">Non lu</span>
+                {% endif %}
+            </div>
+
+            <form method="post" action="{{ path('app_album_toggle_lu', {'id': album.id}) }}" class="m-0">
+                <input type="hidden" name="_token" value="{{ csrf_token('toggle_lu' ~ album.id) }}">
+                <input type="hidden" name="redirect" value="edit">
+                <button class="comic-action-btn py-1 px-3">Changer le statut</button>
+            </form>
+        </div>
+
+        <div class="d-flex gap-2 flex-wrap mt-4">
+            <a href="{{ path('app_serie_show', { id: album.serie.id }) }}" class="comic-action-btn">Retour</a>
+        </div>
+
     </div>
-</div>
 
-<style>
-.bd-bubble {
-    display: inline-block;
-    padding: 10px 20px;
-    max-width: 150px;
-    background: #fff8e7;
-    border: 2px solid #e0cda9;
-    border-radius: 10px;
-    font-weight: bold;
-    text-decoration: none;
-    color: #333;
-    text-align: center;
-    box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-.bd-bubble:hover {
-    transform: scale(1.05);
-    box-shadow: 5px 5px 0 rgba(0,0,0,0.4);
-}
-#fileName {
-    font-style: italic;
-    color: #555;
-}
-.form-position {
-    position: absolute;
-    top: 47%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: auto;
-    max-width: 400px;
-}
-</style>
+</main>
 
+{# --- Script prévisualisation image --- #}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('album_image_input');
-    const chooseBtn = document.getElementById('chooseImageBtn');
+    const preview = document.getElementById('previewImage');
     const fileName = document.getElementById('fileName');
 
-    chooseBtn.addEventListener('click', () => {
-        fileInput.click();
-    });
+    if (!fileInput || !preview) return;
+
+    // On garde l'URL actuelle pour fallback
+    const originalSrc = preview.src;
 
     fileInput.addEventListener('change', () => {
-        if (fileInput.files.length > 0) {
-            fileName.textContent = fileInput.files[0].name;
-        } else {
-            fileName.textContent = 'Aucun fichier choisi';
+        const file = fileInput.files[0];
+        if (!file) {
+            preview.src = originalSrc;
+            preview.style.display = originalSrc ? 'block' : 'none';
+            if (fileName) fileName.textContent = 'Aucun fichier choisi';
+            return;
         }
+
+        if (fileName) fileName.textContent = `Fichier sélectionné : ${file.name}`;
+
+        // Utilisation d'une URL temporaire pour affichage instantané
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
     });
 });
 </script>
+
 {% endblock %}

@@ -3,51 +3,75 @@
 {% block title %}Albums{% endblock %}
 
 {% block body %}
-<div class="container-fluid mt-4 px-0">
-    <div class="titre-serie">
+<div class="container my-4">
+
+    <div class="titre-serie text-center mb-4">
         <img src="{{ asset('images/bulle2.png') }}" alt="Les séries" class="titre-image">
     </div>
 
-    <div class="d-flex flex-column align-items-start ms-3" style="width: 15%;">
-        <a href="{{ path('app_serie_index') }}" class="bd-bubble mb-3 text-center w-100">
+    <div class="d-flex flex-column align-items-start mb-4" style="width: 15%;">
+        <a href="{{ path('app_serie_index') }}" class="comic-action-btn mb-3 text-center w-100">
             Série
         </a>
 
-        <a href="{{ path('app_album_new') }}" class="bd-bubble text-center mb-5 w-100">
+        <a href="{{ path('app_album_new') }}" class="comic-action-btn text-center w-100">
             Ajouter un album
         </a>
     </div>
-</div>
+
     <div class="row">
         {% for album in albums %}
-            <div class="col-md-3 mb-4">
-                <div class="card h-100">
-                    {% if album.couverture %}
-                        <img src="{{ asset('uploads/' ~ album.couverture) }}" class="card-img-top" alt="{{ album.titre }}">
-                    {% else %}
-                        <img src="https://via.placeholder.com/200x300?text=Pas+d%27image" class="card-img-top" alt="Pas d'image">
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ album.titre }}</h5>
-                        <p class="card-text">N° {{ album.numero }}</p>
-                        <p class="card-text"><small>Série : {{ album.serie.nom }}</small></p>
-                        <p>
-    Statut : 
-    {% if album.lu %}
-        ✅ Lu
+           <div class="col-md-3 mb-4">
+    <div class="comic-card h-100 p-2">
+
+       <div class="d-flex justify-content-center mb-2 image-wrapper" style="width:100%;">
+    {% if album.couverture %}
+        <img src="{{ asset('uploads/' ~ album.couverture) }}" 
+             alt="{{ album.titre }}"
+             class="comic-border image-hover"
+             style="
+                width: 100%;
+                height: 250px;
+                object-fit: contain;
+             ">
     {% else %}
-        ❌ Non lu
+        <div class="comic-bubble text-center d-flex align-items-center justify-content-center"
+             style="height: 250px; width:100%;">
+            Pas d'image
+        </div>
     {% endif %}
-</p>
-                    </div>
-                    <div class="card-footer d-flex justify-content-between">
-                        <a href="{{ path('app_album_show', {'id': album.id}) }}" class="btn btn-sm btn-info">Voir</a>
-                        <a href="{{ path('app_album_edit', {'id': album.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
-                    </div>
-                </div>
-            </div>
+</div>
+
+        <div class="comic-bubble mb-2">
+            <strong>{{ album.titre }}</strong>
+        </div>
+
+        <div class="comic-bubble mb-2">
+            N° {{ album.numero }}
+        </div>
+
+        <div class="comic-bubble mb-2">
+            <small>Série : {{ album.serie.nom }}</small>
+        </div>
+
+        <div class="comic-bubble mb-2">
+            Statut : 
+            {% if album.lu %}
+                ✅ <span class="text-success fw-bold">Lu</span>
+            {% else %}
+                ❌ <span class="text-danger fw-bold">Non lu</span>
+            {% endif %}
+        </div>
+
+        <div class="d-flex gap-2 flex-wrap mt-2">
+            <a href="{{ path('app_album_show', {'id': album.id}) }}" class="comic-action-btn flex-grow-1 text-center">Voir</a>
+            <a href="{{ path('app_album_edit', {'id': album.id}) }}" class="comic-action-btn flex-grow-1 text-center">Modifier</a>
+        </div>
+
+    </div>
+</div>
         {% else %}
-            <p>Aucun album pour le moment.</p>
+            <p class="comic-action-btn text-center w-100">Aucun album pour le moment.</p>
         {% endfor %}
     </div>
 </div>

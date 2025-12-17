@@ -5,114 +5,113 @@
 {% block body %}
 <main class="container my-5">
 
-    {# --- En-tête --- #}
+    <div class="comic-card mx-auto p-4 shadow-lg rounded-4">
 
+        {# --- Titre de la série --- #}
+        <h1 class="text-center comic-title mb-4">{{ serie.nom }}</h1>
 
-    {# --- Fond panneau --- #}
-    <div class="position-relative mx-auto" style="max-width: 900px;">
-        <img src="{{ asset('images/3.png') }}" alt="Panneau"
-             class="img-fluid rounded shadow" style="width: 100%;">
+        <div class="row align-items-start">
 
-        {# --- Overlay panneau --- #}
-        <div class="position-absolute top-0 start-0 w-100 h-100 p-4 d-flex flex-column align-items-center justify-content-start"
-             style="border-radius: 10px; transform: translateY(340px);">
-
-            {# --- IMAGE --- #}
-            <div class="mb-4 text-center">
-                {% if serie.image %}
-                    <img src="{{ asset('uploads/' ~ serie.image) }}"
-                         alt="{{ serie.nom }}"
-                         class="img-fluid rounded shadow border border-dark cover-zoom"
-                         style="max-height: 300px;">
-                {% else %}
-                    <img src="https://via.placeholder.com/300x400?text=Pas+d%27image"
-                         class="img-fluid rounded shadow border border-dark"
-                         style="max-height: 300px;"
-                         alt="Pas d'image">
-                {% endif %}
+            {# --- Image de la série --- #}
+            {% if serie.image %}
+            <div class="col-12 col-md-4 text-center mb-4 mb-md-0 pe-md-4">
+                <img src="{{ asset('uploads/' ~ serie.image) }}"
+                     alt="{{ serie.nom }}"
+                     class="img-fluid rounded comic-border cover-zoom"
+                     style="max-height: 300px;">
             </div>
+            {% endif %}
 
-            {# --- INFOS --- #}
-            <div class="w-50 d-flex flex-column gap-3">
+            {# --- Infos et description --- #}
+            <div class="col-12 col-md-8">
 
-                <div class="p-2 rounded text-center"
-                     style="color: #030303ff; font-weight: bold;">
+                <div class="comic-bubble mb-3">
                     <strong>Nom :</strong> {{ serie.nom }}
                 </div>
 
-                <div class="p-2 rounded text-center"
-                     style="color: #050505ff; font-weight: bold;">
+                <div class="comic-bubble mb-3">
                     <strong>Description :</strong><br>
-                    <span class="text-black">{{ serie.description ?: 'Aucune description' }}</span>
+                    {{ serie.description ?: 'Aucune description' }}
                 </div>
-            </div>
 
-            {# --- BOUTONS --- #}
-            <div class="mt-4 d-flex flex-column align-items-center gap-2 w-50">
-
-
-                <a href="{{ path('app_album_new', {'serie_id': serie.id}) }}" class="btn btn-primary w-75">
-                    Ajouter un album
-                </a>
-
-                <a href="{{ path('app_serie_edit', {'id': serie.id}) }}" class="btn btn-warning w-75">
-                    Modifier
-                </a>
-
-
-                <div class="w-75">
+                {# --- Boutons actions --- #}
+                <div class="d-flex gap-2 flex-wrap mb-3">
+                    <a href="{{ path('app_album_new', {'serie_id': serie.id}) }}" class="comic-action-btn flex-grow-1 text-center">
+                        Ajouter un album
+                    </a>
+                    <a href="{{ path('app_serie_edit', {'id': serie.id}) }}" class="comic-action-btn flex-grow-1 text-center">
+                        Modifier la série
+                    </a>
                     {{ include('serie/_delete_form.html.twig', {
                         'button_label': 'Supprimer',
-                        'button_class': 'btn btn-danger w-100'
+                        'button_class': 'comic-action-btn flex-grow-1 text-center'
                     }) }}
+                    <a href="{{ path('app_serie_index') }}" class="comic-action-btn flex-grow-1 text-center">
+                        Retour
+                    </a>
                 </div>
-                                <a href="{{ path('app_serie_index') }}" class="btn btn-light w-75">
-                    ← Retour
-                </a>
 
             </div>
-
         </div>
     </div>
 </main>
 
-{# --- Albums de la série --- #}
+{# --- Albums de la série triés par numéro --- #}
 <div class="container mt-5">
-
     {% if serie.albums|length > 0 %}
-       <h3 class="mb-3 text-white text-center bubble-title-small">
-    Albums de la série
-</h3>
+        <div class="comic-bubble text-center mx-auto mb-3" 
+             style="max-width: 300px; font-weight: bold; font-size: 1.25rem;
+                    background-color: rgba(255, 255, 255, 0.98); border: 2px solid #000; border-radius: 0.5rem; 
+                    box-shadow: 3px 3px 0 rgba(0,0,0,0.2); padding: 0.75rem 1rem;">
+            Albums de la série
+        </div>
+
+        {% set sortedAlbums = serie.albums|sort((a, b) => a.numero <=> b.numero) %}
+
         <div class="row row-cols-1 row-cols-md-3 g-4 mt-2">
-            {% for album in serie.albums %}
+            {% for album in sortedAlbums %}
                 <div class="col">
-                    <div class="card h-100 shadow-sm">
+                    <div class="comic-card h-100 p-2">
 
                         {% if album.couverture %}
-                            <img src="{{ asset('uploads/' ~ album.couverture) }}"
-                                 class="card-img-top" alt="{{ album.titre }}">
+                            <div class="d-flex justify-content-center align-items-center mb-3" style="height: 250px;">
+                                <img src="{{ asset('uploads/' ~ album.couverture) }}"
+                                     class="img-fluid comic-border cover-zoom"
+                                     alt="{{ album.titre }}"
+                                     style="max-height: 250px; object-fit: contain;">
+                            </div>
                         {% else %}
-                            <img src="https://via.placeholder.com/200x300?text=Pas+d%27image"
-                                 class="card-img-top" alt="Pas d'image">
+                            <div class="comic-bubble text-center d-flex align-items-center justify-content-center mb-2"
+                                 style="height: 250px;">
+                                Pas d'image
+                            </div>
                         {% endif %}
 
-                        <div class="card-body">
-                            <h5 class="card-title text-center">{{ album.titre }}</h5>
-                            <p class="card-text text-center"><small class="text-muted">N° {{ album.numero }}</small></p>
+                        <div class="comic-bubble mb-2 text-center">
+                            <strong>{{ album.titre }}</strong>
                         </div>
 
-                        <div class="card-footer d-flex gap-1 justify-content-center">
-                            <a href="{{ path('app_album_show', {'id': album.id}) }}"
-                               class="btn btn-sm btn-info">Voir</a>
+                        <div class="comic-bubble mb-2 text-center">
+                            N° {{ album.numero }}
+                        </div>
 
-                            <a href="{{ path('app_album_edit', {'id': album.id}) }}"
-                               class="btn btn-sm btn-warning">Modifier</a>
+                        <div class="comic-bubble mb-2 text-center">
+                            Statut : 
+                            {% if album.lu %}
+                                ✅ <span class="text-success fw-bold">Lu</span>
+                            {% else %}
+                                ❌ <span class="text-danger fw-bold">Non lu</span>
+                            {% endif %}
+                        </div>
 
-                            <form method="post"
-                                  action="{{ path('app_album_delete', {'id': album.id}) }}"
-                                  onsubmit="return confirm('Voulez-vous vraiment supprimer cet album ?');">
+                        <div class="d-flex gap-2 flex-wrap justify-content-center mt-2">
+                            <a href="{{ path('app_album_show', {'id': album.id}) }}" class="comic-action-btn flex-grow-1 text-center">Voir</a>
+                            <a href="{{ path('app_album_edit', {'id': album.id}) }}" class="comic-action-btn flex-grow-1 text-center">Modifier</a>
+                            <form method="post" action="{{ path('app_album_delete', {'id': album.id}) }}"
+                                  onsubmit="return confirm('Voulez-vous vraiment supprimer cet album ?');"
+                                  class="flex-grow-1">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ album.id) }}">
-                                <button class="btn btn-sm btn-danger">Supprimer</button>
+                                <button class="comic-action-btn w-100">Supprimer</button>
                             </form>
                         </div>
 
@@ -120,45 +119,14 @@
                 </div>
             {% endfor %}
         </div>
-
     {% else %}
-        <p class="mt-4 text-muted text-center">Aucun album enregistré pour cette série.</p>
+        <div class="comic-bubble text-center mx-auto mb-3" 
+             style="max-width: 300px; font-weight: bold; font-size: 1.25rem;
+                    background-color: rgba(255, 255, 255, 0.98); border: 2px solid #000; border-radius: 0.5rem; 
+                    box-shadow: 3px 3px 0 rgba(0,0,0,0.2); padding: 0.75rem 1rem;">
+            Aucun album dans cette série
+        </div>
     {% endif %}
 </div>
-
-
-<style>
-
-.bubble-title {
-    display: inline-block;
-    background: rgba(255, 255, 255, 0.15);
-    padding: 15px 30px;
-    border-radius: 25px;
-    font-size: 2.5rem;
-    text-shadow: 0 0 5px rgba(0,0,0,0.7);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-    backdrop-filter: blur(3px);
-}
-
-.bubble-title-small {
-        display: block;
-    width: fit-content;
-    margin: 0 auto;
-    background: rgba(0, 123, 255, 0.15);
-    padding: 10px 25px;
-    border-radius: 20px;
-    font-size: 1.75rem;
-    font-weight: bold;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    backdrop-filter: blur(3px);
-}
-
-.cover-zoom {
-    transition: transform 0.3s ease;
-}
-.cover-zoom:hover {
-    transform: scale(2);
-}
-</style>
 
 {% endblock %}

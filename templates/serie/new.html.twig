@@ -1,63 +1,77 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Créer une nouvelle série{% endblock %}
+{% block title %}Nouvelle série{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
+<main class="container my-5">
 
-    <div class="text-center mb-4 position-relative mx-auto" style="max-width: 900px;">
-        <img src="{{ asset('images/panneau.png') }}" alt="Panneau"
-             class="img-fluid rounded shadow" style="width: 100%;">
+    <div class="comic-card mx-auto p-4 shadow-lg rounded-4">
 
-        <h1 class="fw-bold text-white position-absolute" 
-            style="top: 170px; left: 50%; transform: translateX(-50%);">
-            Nouvelle série
-        </h1>
+        <h1 class="comic-title text-center mb-4">Nouvelle série</h1>
 
-        <div class="position-absolute top-50 start-50 translate-middle px-4 py-3" style="width:auto; max-width:400px;">
+        {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
 
-            {{ form_start(form, { 'attr': { 'enctype': 'multipart/form-data' }}) }}
-
-            {# Nom #}
-            {{ form_row(form.nom) }}
-
-            {# Description #}
-            {{ form_row(form.description) }}
-
-            {# Champ "Parcourir" pour l'image #}
-            {{ form_row(form.image) }}
-
-            {# Boutons #}
-            <div class="d-flex justify-content-center mt-3 flex-wrap gap-2">
-                <button type="submit" class="bd-bubble">Créer</button>
-                <a href="{{ path('app_serie_index') }}" class="bd-bubble">Retour</a>
-            </div>
-
-            {{ form_end(form) }}
-
+        {# --- Nom --- #}
+        <div class="comic-bubble mb-3">
+            {{ form_label(form.nom, null, {'label_attr': {'class': 'fw-bold'}}) }}
+            {{ form_widget(form.nom, {'attr': {'class': 'form-control mt-2'}}) }}
+            {{ form_errors(form.nom) }}
         </div>
-    </div>
-</div>
 
-<style>
-.bd-bubble {
-    display: inline-block;
-    padding: 10px 20px;
-    max-width: 150px;
-    width: 130px;
-    background: #fff8e7;
-    border: 2px solid #e0cda9;
-    border-radius: 10px;
-    font-weight: bold;
-    text-decoration: none;
-    color: #333;
-    text-align: center;
-    box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-.bd-bubble:hover {
-    transform: scale(1.05);
-    box-shadow: 5px 5px 0 rgba(0,0,0,0.4);
-}
-</style>
+        {# --- Description --- #}
+        <div class="comic-bubble mb-3">
+            {{ form_label(form.description, null, {'label_attr': {'class': 'fw-bold'}}) }}
+            {{ form_widget(form.description, {'attr': {'class': 'form-control mt-2', 'rows': 4}}) }}
+            {{ form_errors(form.description) }}
+        </div>
+
+        {# --- Image avec prévisualisation --- #}
+        <div class="comic-bubble mb-3">
+            {{ form_label(form.image, null, {'label_attr': {'class': 'fw-bold'}}) }}
+            {{ form_widget(form.image, {'attr': {'class': 'form-control mt-2', 'id': 'serie_image_input', 'accept': 'image/*'}}) }}
+            {{ form_errors(form.image) }}
+
+            <img id="previewImage" alt="Miniature image" class="img-fluid mt-2" style="display:none; max-height:150px;">
+            <div id="fileName" class="mt-1" style="font-style: italic; color:#555;"></div>
+        </div>
+
+        {# --- Boutons --- #}
+        <div class="d-flex gap-2 flex-wrap mt-4">
+            <button type="submit" class="comic-action-btn">Créer</button>
+            <a href="{{ path('app_serie_index') }}" class="comic-action-btn">Retour</a>
+        </div>
+
+        {{ form_end(form) }}
+
+    </div>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('serie_image_input');
+    const preview = document.getElementById('previewImage');
+    const fileName = document.getElementById('fileName');
+
+    if (!input || !preview) return;
+
+    input.addEventListener('change', () => {
+        const file = input.files[0];
+        if (!file) {
+            preview.style.display = 'none';
+            preview.src = '';
+            fileName.textContent = '';
+            return;
+        }
+
+        fileName.textContent = `Fichier sélectionné : ${file.name}`;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    });
+});
+</script>
 {% endblock %}

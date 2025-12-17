@@ -25,6 +25,9 @@ class Album
     #[ORM\Column(type: "string", length: 255, nullable: true)]
     private ?string $couverture = null;
 
+    #[ORM\Column(type: "datetime", nullable: true)]
+    private ?\DateTimeInterface $couvertureUpdatedAt = null;
+
     #[ORM\ManyToOne(targetEntity: Serie::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?Serie $serie = null;
@@ -83,6 +86,17 @@ class Album
         return $this;
     }
 
+    public function getCouvertureUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->couvertureUpdatedAt;
+    }
+
+    public function setCouvertureUpdatedAt(?\DateTimeInterface $couvertureUpdatedAt): self
+    {
+        $this->couvertureUpdatedAt = $couvertureUpdatedAt;
+        return $this;
+    }
+
     public function getSerie(): ?Serie
     {
         return $this->serie;
@@ -105,3 +119,4 @@ class Album
         return $this;
     }
 }
+

@@ -3,71 +3,73 @@
 {% block title %}Séries{% endblock %}
 
 {% block body %}
-<div class="container-fluid mt-4 px-0">
-    <div class="titre-serie">
+<div class="container my-4">
+
+    <div class="titre-serie text-center mb-4">
         <img src="{{ asset('images/bulle.png') }}" alt="Les séries" class="titre-image">
     </div>
 
-    <div class="d-flex flex-column align-items-start ms-3" style="width: 15%;">
-        <a href="{{ path('app_album_index') }}" class="bd-bubble mb-3 text-center w-100">
+    <div class="d-flex flex-column align-items-start mb-4" style="width: 15%;">
+        <a href="{{ path('app_album_index') }}" class="comic-action-btn mb-3 text-center w-100">
             Albums
         </a>
 
-        <a href="{{ path('app_serie_new') }}" class="bd-bubble text-center mb-5 w-100">
+        <a href="{{ path('app_serie_new') }}" class="comic-action-btn text-center w-100">
             Ajouter une série
         </a>
+    </div>
+
+    <div class="row">
+        {% for serie in series %}
+            <div class="col-md-3 mb-4">
+                <div class="comic-card h-100 p-2">
+
+ <div class="d-flex justify-content-center align-items-center mb-2 cover-hover"
+     style="height: 250px; width: 100%;">
+    {% if serie.image %}
+        <img src="{{ asset('uploads/' ~ serie.image) }}"
+             alt="{{ serie.nom }}"
+             class="comic-border img-hover"
+             style="
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                transition: transform 0.3s ease;
+             ">
+    {% else %}
+        <div class="comic-bubble text-center d-flex align-items-center justify-content-center"
+             style="height: 100%; width: 100%;">
+            Pas d'image
+        </div>
+    {% endif %}
+</div>
+
+                    <div class="comic-bubble mb-2">
+                        <strong>{{ serie.nom }}</strong>
+                    </div>
+
+                    <div class="comic-bubble mb-2">
+                        <small>{{ serie.description|length > 80 ? serie.description|slice(0, 80) ~ '...' : serie.description }}</small>
+                    </div>
+
+                    <div class="d-flex gap-2 flex-wrap mt-2">
+                        <a href="{{ path('app_serie_show', {'id': serie.id}) }}" class="comic-action-btn flex-grow-1 text-center">Voir</a>
+                        <a href="{{ path('app_serie_edit', {'id': serie.id}) }}" class="comic-action-btn flex-grow-1 text-center">Modifier</a>
+                        <form method="post" action="{{ path('app_serie_delete', {'id': serie.id}) }}" 
+                              class="flex-grow-1" 
+                              onsubmit="return confirm('Voulez-vous vraiment supprimer cette série ? Cette action est irréversible.');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ serie.id) }}">
+                            <button class="comic-action-btn w-100">Supprimer</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        {% else %}
+            <p class="comic-action-btn text-center w-10"> Aucune série pour le moment.</p>
+        {% endfor %}
     </div>
 </div>
 
 
-    {# --- Liste des séries --- #}
-
-    {% if series is not empty %}
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-            {% for serie in series %}
-                <div class="col">
-                    <div class="card h-100 shadow-sm">
-                        <a href="{{ path('app_serie_show', {'id': serie.id}) }}">
-    {% if serie.image %}
-        <img src="{{ asset('uploads/' ~ serie.image) }}"
-             class="card-img-top"
-             alt="{{ serie.nom }}"
-             style="height: 180px; object-fit: cover;">
-    {% else %}
-        <img src="https://via.placeholder.com/300x180?text=Pas+d%27image"
-             class="card-img-top"
-             alt="Pas d'image">
-    {% endif %}
-</a>
-
-                        <div class="card-body">
-                            <h5 class="card-title text-truncate">{{ serie.nom }}</h5>
-                            <p class="card-text small text-muted" style="height: 60px; overflow: hidden;">{{ serie.description }}</p>
-                        </div>
-
-                        <div class="card-footer d-flex justify-content-between align-items-center">
-                            <a href="{{ path('app_serie_show', {'id': serie.id}) }}" class="btn btn-sm btn-info text-white">
-                                voir
-                            </a>
-                            <a href="{{ path('app_serie_edit', {'id': serie.id}) }}" class="btn btn-sm btn-warning text-white">
-                                Modifier
-                            </a>
-                            <form method="post"
-                                  action="{{ path('app_serie_delete', {'id': serie.id}) }}"
-                                  onsubmit="return confirm('Voulez-vous vraiment supprimer cette série ? Cette action est irréversible.');">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ serie.id) }}">
-                                <button class="btn btn-sm btn-danger">
-                                    Supprimer
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p class="text-muted">Aucune série pour le moment.</p>
-    {% endif %}
-</div>
 {% endblock %}
-

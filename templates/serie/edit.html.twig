@@ -1,82 +1,97 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Modifier une série{% endblock %}
+{% block title %}Modifier la série{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
+<main class="container my-5">
 
-    <h1 class="text-center mb-4">Modifier la série</h1>
+    <div class="comic-card mx-auto p-4 shadow-lg rounded-4" style="max-width: 700px;">
 
-    {{ form_start(form) }}
+        <h1 class="comic-title text-center mb-4">
+            Modifier la série
+        </h1>
 
-    <div class="mb-4">
-        {# Nom #}
-        <div class="mb-3 row align-items-center">
-            {{ form_label(form.nom, null, {'label_attr': {'class': 'col-sm-2 col-form-label'}}) }}
-            <div class="col-sm-10">
-                {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(form.nom) }}
-            </div>
+        {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+
+        {# --- Nom de la série --- #}
+        <div class="comic-bubble mb-3">
+            {{ form_label(form.nom, null, {'label_attr': {'class': 'fw-bold'}}) }}
+            {{ form_widget(form.nom, {'attr': {'class': 'form-control mt-2'}}) }}
+            {{ form_errors(form.nom) }}
         </div>
 
-        {# Description #}
-        <div class="mb-3 row align-items-center">
-            {{ form_label(form.description, null, {'label_attr': {'class': 'col-sm-2 col-form-label'}}) }}
-            <div class="col-sm-10">
-                {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(form.description) }}
-            </div>
+        {# --- Description --- #}
+        <div class="comic-bubble mb-3">
+            {{ form_label(form.description, null, {'label_attr': {'class': 'fw-bold'}}) }}
+            {{ form_widget(form.description, {'attr': {'class': 'form-control mt-2', 'rows': 4}}) }}
+            {{ form_errors(form.description) }}
         </div>
 
-        {# Image actuelle #}
-        {% if serie.image %}
-            <div class="mb-3 row align-items-center">
-                <label class="col-sm-2 col-form-label">Image actuelle</label>
-                <div class="col-sm-10">
-                    <img src="/uploads/{{ serie.image }}" alt="Image actuelle" class="img-fluid rounded border" width="220">
-                </div>
-            </div>
-        {% endif %}
-
-        {# Nouvelle image #}
-        <div class="mb-3 row align-items-center">
-            {{ form_label(form.image, null, {'label_attr': {'class': 'col-sm-2 col-form-label'}}) }}
-            <div class="col-sm-10">
-                {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(form.image) }}
-            </div>
+        {# --- Image actuelle / nouvelle image --- #}
+        <div class="comic-bubble mb-3 text-center">
+            {% if serie.image %}
+                <strong class="d-block mb-2">Image actuelle</strong>
+                <img id="previewImage" src="/uploads/{{ serie.image }}" alt="Image actuelle"
+                     class="img-fluid mt-2" style="max-height: 150px;">
+            {% else %}
+                <img id="previewImage" src="#" alt="Prévisualisation"
+                     class="img-fluid mt-2" style="display:none; max-height: 150px;">
+            {% endif %}
         </div>
+
+        <div class="comic-bubble mb-3">
+            {{ form_label(form.image, null, {'label_attr': {'class': 'fw-bold'}}) }}
+            {{ form_widget(form.image, {'attr': {'class': 'form-control mt-2', 'id': 'serie_image_input', 'accept': 'image/*'}}) }}
+            {{ form_errors(form.image) }}
+            <div id="fileName" class="mt-1" style="font-style: italic; color:#555;"></div>
+        </div>
+
+        {# --- Boutons alignés sur la même ligne --- #}
+        <div class="d-flex gap-2 flex-wrap mt-4 align-items-center">
+            <button type="submit" class="comic-action-btn">Mettre à jour</button>
+            <a href="{{ path('app_serie_index') }}" class="comic-action-btn">Retour</a>
+            <form method="post"
+                  action="{{ path('app_serie_delete', {'id': serie.id}) }}"
+                  onsubmit="return confirm('Supprimer cette série ?');"
+                  class="m-0">
+                <button class="comic-action-btn text-danger" type="submit">Supprimer</button>
+            </form>
+        </div>
+
+        {{ form_end(form) }}
+
     </div>
+</main>
 
-    {# Boutons principaux #}
-    <div class="text-center mt-4">
-        <button type="submit" class="btn btn-primary px-4 py-2 mb-2">
-            Mettre à jour
-        </button>
+{# --- Script pour prévisualisation image --- #}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('serie_image_input');
+    const preview = document.getElementById('previewImage');
+    const fileName = document.getElementById('fileName');
 
-        <div>
-            <a href="{{ path('app_serie_index') }}" class="btn btn-secondary px-4">
-                Retour
-            </a>
-        </div>
-    </div>
+    if (!input) return;
 
-    {{ form_end(form) }}
+    input.addEventListener('change', () => {
+        const file = input.files[0];
 
-    {# Bouton supprimer (formulaire séparé) #}
-    <div class="text-center mt-4">
-        <form 
-            method="post"
-            action="{{ path('app_serie_delete', {'id': serie.id}) }}"
-            onsubmit="return confirm('Supprimer cette série ?');"
-            class="d-inline-block"
-        >
-            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ serie.id) }}">
-            <button class="btn btn-danger px-4">
-                Supprimer
-            </button>
-        </form>
-    </div>
+        if (!file) {
+            preview.style.display = 'none';
+            preview.src = '';
+            fileName.textContent = '';
+            return;
+        }
 
-</div>
+        fileName.textContent = `Fichier sélectionné : ${file.name}`;
+
+        const reader = new FileReader();
+        reader.onload = e => {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    });
+});
+</script>
+
 {% endblock %}

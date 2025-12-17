@@ -1,123 +1,119 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Créer un nouvel album{% endblock %}
+{% block title %}Nouvel album{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
+<main class="container my-5">
 
-    {# --- Panneau BD avec titre --- #}
-    <div class="text-center mb-4 position-relative mx-auto" style="max-width: 900px;">
-        <img src="{{ asset('images/3.png') }}" alt="Panneau"
-             class="img-fluid rounded shadow" style="width: 100%;">
+    <div class="comic-card mx-auto p-4 shadow-lg rounded-4">
 
-        <h1 class="fw-bold text-white position-absolute" 
-            style="top: 180px; left: 50%; transform: translateX(-50%);">
+        {# --- Titre façon BD --- #}
+        <h1 class="comic-title text-center mb-4">
             Nouvel album
         </h1>
 
-        {# --- Formulaire flottant --- #}
-        <div class="position-absolute top-50 start-50 translate-middle px-4 py-3 mt-2" style="width:auto; max-width:400px;">
+        {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
 
-            {{ form_start(form) }}
-
-            {# --- Nom de l'album --- #}
-            <div class="row align-items-center mb-0">
-                {{ form_label(form.titre, null, {'label_attr': {'class': 'col-sm-4 col-form-label text-end'}}) }}
-                <div class="col-sm-8">
-                    {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
-                    {{ form_errors(form.titre) }}
-                </div>
-            </div>
-
-            {# --- Numéro de l'album --- #}
-            <div class="row align-items-center mb-0">
-                {{ form_label(form.numero, null, {'label_attr': {'class': 'col-sm-4 col-form-label text-end'}}) }}
-                <div class="col-sm-8">
-                    {{ form_widget(form.numero, {'attr': {'class': 'form-control'}}) }}
-                    {{ form_errors(form.numero) }}
-                </div>
-            </div>
-
-            {# --- Série --- #}
-            <div class="row align-items-center mb-0">
-                {{ form_label(form.serie, null, {'label_attr': {'class': 'col-sm-4 col-form-label text-end'}}) }}
-                <div class="col-sm-8">
-                    {{ form_widget(form.serie, {'attr': {'class': 'form-control'}}) }}
-                    {{ form_errors(form.serie) }}
-                </div>
-            </div>
-
-            {# --- Image de l'album avec miniature --- #}
-           <div class="row align-items-center mb-0">
-    {{ form_label(form.couverture, null, {'label_attr': {'class': 'col-sm-4 col-form-label text-end'}}) }}
-    <div class="col-sm-8">
-        {{ form_widget(form.couverture, {'attr': {'class': 'form-control'}}) }}
-        {{ form_errors(form.couverture) }}
-    </div>
-</div>
-
-            {# --- Boutons --- #}
-            <div class="d-flex justify-content-between mt-3 flex-wrap gap-2">
-                <button type="submit" class="bd-bubble">Créer</button>
-                <a href="{{ path('app_album_index') }}" class="bd-bubble">Retour</a>
-            </div>
-
-            {{ form_end(form) }}
-
+        {# --- Titre --- #}
+        <div class="comic-bubble mb-3">
+            {{ form_label(form.titre, null, {'label_attr': {'class': 'fw-bold'}}) }}
+            {{ form_widget(form.titre, {'attr': {'class': 'form-control mt-2'}}) }}
+            {{ form_errors(form.titre) }}
         </div>
-    </div>
+
+        {# --- Numéro --- #}
+        <div class="comic-bubble mb-3">
+            {{ form_label(form.numero, null, {'label_attr': {'class': 'fw-bold'}}) }}
+            {{ form_widget(form.numero, {'attr': {'class': 'form-control mt-2'}}) }}
+            {{ form_errors(form.numero) }}
+        </div>
+
+        {# --- Série --- #}
+        <div class="comic-bubble mb-3">
+            {{ form_label(form.serie, null, {'label_attr': {'class': 'fw-bold'}}) }}
+            {{ form_widget(form.serie, {'attr': {'class': 'form-control mt-2'}}) }}
+            {{ form_errors(form.serie) }}
+        </div>
+
+        {# --- Couverture avec prévisualisation --- #}
+<div class="comic-bubble mb-3">
+    {{ form_label(form.couverture, null, {'label_attr': {'class': 'fw-bold'}}) }}
+
+    {# Champ "Parcourir" #}
+    {{ form_widget(form.couverture, {'attr': {'class': 'form-control mt-2', 'id': 'album_image_input', 'accept': 'image/*'}}) }}
+    {{ form_errors(form.couverture) }}
+
+    {# Miniature sous le champ #}
+    {% if album.couverture %}
+        <img id="previewImage" src="{{ asset('uploads/' ~ album.couverture) }}" 
+             alt="Miniature couverture" class="img-fluid mt-2" style="max-height: 150px;">
+    {% else %}
+        <img id="previewImage" src="#" alt="Miniature couverture" 
+             class="img-fluid mt-2" style="display:none; max-height: 150px;">
+    {% endif %}
+
+    <div id="fileName" class="mt-1" style="font-style: italic; color:#555;"></div>
 </div>
 
-{# --- Styles BD pour les boutons --- #}
-<style>
-.bd-bubble {
-    display: inline-block;
-    padding: 10px 20px;
-    max-width: 150px;
-    width: 130px;
-    background: #fff8e7;
-    border: 2px solid #e0cda9;
-    border-radius: 10px;
-    font-weight: bold;
-    text-decoration: none;
-    color: #333;
-    text-align: center;
-    box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
-    transition: transform 0.2s, box-shadow 0.2s;
-}
+        {# --- Boutons --- #}
+        <div class="d-flex gap-2 flex-wrap mt-4">
+            <button type="submit" class="comic-action-btn">Créer</button>
+            <a href="{{ path('app_serie_index') }}" class="comic-action-btn">Retour</a>
+        </div>
 
-.bd-bubble:hover {
-    transform: scale(1.05);
-    box-shadow: 5px 5px 0 rgba(0,0,0,0.4);
-}
+        {{ form_end(form) }}
 
-#fileName {
-    font-style: italic;
-    color: #555;
-}
-</style>
+    </div>
 
-{# --- Script pour afficher le nom et la miniature --- #}
+</main>
+
+{# --- Script pour prévisualisation image --- #}
 <script>
-const fileInput = document.getElementById('album_image_input');
-const fileName = document.getElementById('fileName');
-const preview = document.getElementById('previewImage');
-
-fileInput.addEventListener('change', function() {
-    if(fileInput.files && fileInput.files[0]) {
-        const file = fileInput.files[0];
-        fileName.textContent = `Fichier sélectionné : ${file.name}`;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-            preview.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-    } else {
-        fileName.textContent = 'Aucun fichier choisi';
-        preview.style.display = 'none';
+document.addEventListener('DOMContentLoaded', () => {
+    const container = document.querySelector('.comic-card') || document;
+    let fileInput = document.getElementById('album_image_input');
+    const fallback = container.querySelector('input[type="file"]');
+    if (!fileInput && fallback) {
+        fileInput = fallback;
+        console.warn('album_image_input introuvable — utilisation du premier input[type="file"] trouvé dans .comic-card.');
     }
+
+    const preview = document.getElementById('previewImage');
+    const fileName = document.getElementById('fileName');
+
+    if (!fileInput) {
+        console.error('Aucun input[type="file"] trouvé. Inspectez le HTML rendu pour vérifier l\'id/name du champ.');
+        // pour debug rapide : affiche le début du HTML du container
+        console.log('Container HTML (début):', container.innerHTML.slice(0, 800));
+        return;
+    }
+    if (!preview) {
+        console.error('Elément #previewImage introuvable.');
+        return;
+    }
+
+    // si le preview a src="#" on le vide pour éviter requêtes inutiles
+    if (preview.getAttribute('src') === '#') preview.src = '';
+
+    fileInput.addEventListener('change', () => {
+        const f = fileInput.files && fileInput.files[0];
+        if (f) {
+            fileName.textContent = `Fichier sélectionné : ${f.name}`;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(f);
+        } else {
+            fileName.textContent = 'Aucun fichier choisi';
+            preview.style.display = 'none';
+            preview.src = '';
+        }
+    });
+
+    // debug : vérifier que l'événement change est bien attaché
+    console.log('Preview ready — input:', fileInput, 'preview:', preview);
 });
 </script>
 {% endblock %}
